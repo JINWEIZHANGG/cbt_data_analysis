@@ -40,7 +40,28 @@ df_long <- df_long %>%
 
 sum(is.na(df_long$K))
 head(df_long)
+df_long %>%
+  count(participant)
 ```
+
+```{r plot K time series for each participant}
+p1 <- ggplot(df_long, aes(x = Semaine, y = K)) +
+  geom_line() +
+  geom_point(size = 1) +
+  facet_wrap(~ participant, ncol = 2) +
+  labs(
+    title = "Weekly K time series by participant",
+    x = "Week",
+    y = "K"
+  ) +
+  scale_x_continuous(breaks = seq(0, 120, by = 20)) +
+  theme_minimal(base_size = 14)
+
+p1
+```
+
+
+
 
 
 
