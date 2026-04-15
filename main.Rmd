@@ -60,6 +60,42 @@ p1 <- ggplot(df_long, aes(x = Semaine, y = K)) +
 p1
 ```
 
+```{r create lagged K and check for consecutive weeks}
+df_lag <- df_long %>%
+  group_by(participant) %>%
+  arrange(Semaine, .by_group = TRUE) %>%
+  mutate(
+    prev_week = lag(Semaine),
+    K_lag1 = lag(K),
+    consecutive = (Semaine - prev_week == 1)
+  ) %>%
+  ungroup()
+
+head(df_lag, 15)
+
+df_lag_valid <- df_lag %>%
+  filter(consecutive == TRUE)
+
+df_lag_valid %>%
+  count(participant)
+
+acf_results <- df_lag_valid %>%
+  group_by(participant) %>%
+  summarise(
+    lag1_acf = cor(K, K_lag1, use = "complete.obs"),
+    n_pairs = n()
+  )
+
+acf_results
+
+```
+
+
+
+
+
+
+
 
 
 
