@@ -20,4 +20,17 @@ df_k <- df %>%
 head(df_k)
 ```
 
+```{r reshape to long format}
+df_long <- df_k %>%
+  pivot_longer(
+    cols = -Semaine,
+    names_to = "participant",
+    values_to = "K"
+  )
+
+head(df_long)
+str(df_long)
+```
+
+
 
