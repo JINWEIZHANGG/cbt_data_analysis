@@ -32,5 +32,16 @@ head(df_long)
 str(df_long)
 ```
 
+```{r check for missing values, if any, remove them}
+sum(is.na(df_long$K))
+colSums(is.na(df_k))
+df_long <- df_long %>%
+  drop_na(K)
+
+sum(is.na(df_long$K))
+head(df_long)
+```
+
+
 
 
