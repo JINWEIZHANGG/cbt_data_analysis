@@ -119,6 +119,30 @@ surrogate_results <- df_lag_valid %>%
 surrogate_results
 ```
 
+```{r plot surrogate results}
+library(ggplot2)
+
+p_surrogate <- ggplot(surrogate_results, aes(x = participant, y = observed_acf)) +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "grey50") +
+  geom_errorbar(
+    aes(ymin = lower_2.5, ymax = upper_97.5),
+    width = 0.15,
+    size = 0.8
+  ) +
+  geom_point(size = 3) +
+  labs(
+    title = "Observed lag-1 correlation vs surrogate 95% interval",
+    x = "Participant",
+    y = "Lag-1 correlation"
+  ) +
+  theme_minimal(base_size = 14)
+
+p_surrogate
+
+```
+
+
+
 
 
 
