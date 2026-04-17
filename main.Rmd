@@ -90,6 +90,34 @@ acf_results
 
 ```
 
+```{r surrogate analysis}
+set.seed(123)
+
+n_surrogates <- 1000
+
+surrogate_results <- df_lag_valid %>%
+  group_by(participant) %>%
+  group_modify(~{
+    observed <- cor(.x$K, .x$K_lag1, use = "complete.obs")
+    
+    shuffled <- replicate(n_surrogates, {
+      shuffled_K <- sample(.x$K)
+      cor(shuffled_K, .x$K_lag1, use = "complete.obs")
+    })
+    
+    tibble(
+      observed_acf = observed,
+      shuffled_mean = mean(shuffled, na.rm = TRUE),
+      shuffled_sd = sd(shuffled, na.rm = TRUE),
+      lower_2.5 = quantile(shuffled, 0.025, na.rm = TRUE),
+      upper_97.5 = quantile(shuffled, 0.975, na.rm = TRUE),
+      p_two_sided = mean(abs(shuffled) >= abs(observed), na.rm = TRUE)
+    )
+  }) %>%
+  ungroup()
+
+surrogate_results
+```
 
 
 
