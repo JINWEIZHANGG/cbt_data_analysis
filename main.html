@@ -686,6 +686,8 @@ surrogate_results</code></pre>
 ## 5 K5A                0.442     -0.00486       0.112     -0.215      0.217
 ## 6 K6A                0.613      0.00543       0.108     -0.202      0.213
 ## # ℹ 1 more variable: p_two_sided &lt;dbl&gt;</code></pre>
+<pre class="r"><code>#save the table
+write_csv(surrogate_results, &quot;results/lag1_surrogate_table.csv&quot;)</code></pre>
 <p>To make the surrogate comparison easier to interpret visually, the
 figure below shows each observed lag-1 correlation together with its
 participant-specific surrogate 95% interval (2.5th–97.5th percentile of
@@ -876,7 +878,10 @@ surrogate_dfa</code></pre>
 ## 4 K4A             0.808     0.589     0.355      0.858   0.06 
 ## 5 K5A             0.784     0.567     0.377      0.765   0.01 
 ## 6 K6A             0.734     0.569     0.394      0.761   0.075</code></pre>
-<pre class="r"><code>ggplot(surrogate_dfa, aes(x = participant, y = obs_alpha)) +
+<pre class="r"><code># save the table
+write_csv(surrogate_dfa, &quot;results/dfa_surrogate_table.csv&quot;)
+
+ggplot(surrogate_dfa, aes(x = participant, y = obs_alpha)) +
   geom_hline(yintercept = 0.5, linetype = &quot;dotted&quot;, color = &quot;grey60&quot;) +
   geom_hline(yintercept = 1.0, linetype = &quot;dashed&quot;, color = &quot;steelblue&quot;) +
   geom_hline(yintercept = 1.5, linetype = &quot;dashed&quot;, color = &quot;coral&quot;) +
