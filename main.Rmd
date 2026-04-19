@@ -1,16 +1,39 @@
 ---
-title: "Temporal structure in weekly K time series"
-author: "Jinwei Zhang"
-date: "`r Sys.Date()`"
 output:
   html_document:
     code_folding: hide
 ---
-```{r}
-#Master 1 DIGIMOVE  
-#Course: Python-R-Git: Guidelines for the project and the defense  
-#GitHub repository: [insert your GitHub link here](https://github.com/yourname/yourrepo)
-```
+
+<div style="text-align: center; margin-top: 30px; margin-bottom: 40px;">
+
+  <h1 style="font-size: 34px; margin-bottom: 12px;">
+    Temporal structure in weekly K time series
+  </h1>
+
+  <p style="font-size: 20px; margin: 6px 0;">
+    <strong>Jinwei Zhang</strong>
+  </p>
+
+  <p style="font-size: 18px; margin: 10px 0;">
+    <strong>Program:</strong> Master 1 DIGIMOVE
+  </p>
+
+  <p style="font-size: 18px; margin: 10px 0;">
+    <strong>Course:</strong> Python, R and Git for data analysis
+  </p>
+
+  <p style="font-size: 18px; margin: 10px 0;">
+    <strong>Academic year:</strong> 2025–2026
+  </p>
+
+  <p style="font-size: 18px; margin: 10px 0;">
+    <strong>GitHub repository:</strong>
+    <a href="https://github.com/JINWEIZHANGG/cbt_data_analysis">cbt_data_analysis</a>
+  </p>
+
+</div>
+
+<hr>
 
 # 1. Introduction
 
@@ -36,7 +59,7 @@ library(nonlinearTseries)
 ```{r load xlsx data}
 library(readxl)
 df <- read_excel("data/cbtdata.xlsx")
-names(df)
+#names(df)
 #head(df)
 #str(df)
 ```
@@ -47,7 +70,7 @@ names(df)
 library(tidyverse)
 df_k <- df %>% 
   select(Semaine, K1A, K2A, K3A, K4A, K5A, K6A)
-head(df_k)
+#head(df_k)
 ```
 
 
@@ -62,23 +85,24 @@ df_long <- df_k %>%
   )
 
 head(df_long)
-str(df_long)
+#str(df_long)
 ```
 
 
 ```{r check for missing values, if any, remove them}
 # Check whether missing K values are present
-sum(is.na(df_long$K))
+#sum(is.na(df_long$K))
+# to see how many missing values are in each participant's K series
 colSums(is.na(df_k))
 # Remove missing K values if needed
 df_long <- df_long %>%
   drop_na(K)
 # Recheck after cleaning
-sum(is.na(df_long$K))
+#sum(is.na(df_long$K))
 head(df_long)
 # Count valid observations for each participant
-df_long %>%
-  count(participant)
+#df_long %>%
+#  count(participant)
 ```
 
 The first step is to visually inspect the weekly evolution of K for each participant. The figure below provides an overview of participant-level trajectories and highlights possible differences in temporal variability.
@@ -345,7 +369,7 @@ ggplot(surrogate_dfa, aes(x = participant, y = obs_alpha)) +
   geom_errorbar(
     aes(ymin = lower_2.5, ymax = upper_97.5),
     width = 0.15,
-    size = 0.8
+    linewidth = 0.8
   ) +
   geom_point(size = 3) +
   labs(
@@ -355,6 +379,7 @@ ggplot(surrogate_dfa, aes(x = participant, y = obs_alpha)) +
   ) +
   theme_minimal(base_size = 14)
 ```
+
 # 5. Discussion
 
 The present analysis provides converging evidence that weekly K dynamics are not purely random and that the degree of temporal structure varies meaningfully across participants. The surrogate-based lag-1 analysis identified three participants (K2A, K5A, K6A) with short-term persistence exceeding chance, while the DFA analysis independently flagged K1A, K2A, and K5A as showing scaling structure beyond white noise. The convergence across these two methods — and in particular the near-pink-noise alpha for K2A — suggests that motivational dynamics may, in at least some individuals, exhibit the kind of 1/f temporal organisation that has been associated with self-organised criticality and adaptive flexibility in psychological systems.
