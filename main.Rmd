@@ -328,6 +328,8 @@ surrogate_dfa <- df_long %>%
   ungroup()
 
 surrogate_dfa
+# save the table
+write_csv(surrogate_dfa, "results/dfa_surrogate_table.csv")
 
 ggplot(surrogate_dfa, aes(x = participant, y = obs_alpha)) +
   geom_hline(yintercept = 0.5, linetype = "dotted", color = "grey60") +
