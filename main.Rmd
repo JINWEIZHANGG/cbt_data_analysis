@@ -173,6 +173,38 @@ ggplot(acf_multi, aes(x = lag, y = acf)) +
   theme_minimal(base_size = 14)
 ```
 
+```{r DFA analysis}
+library(nonlinearTseries)
+library(tibble)
+library(dplyr)
+
+dfa_results <- df_long %>%
+  group_by(participant) %>%
+  group_modify(~{
+    x <- .x %>%
+      arrange(Semaine) %>%
+      pull(K) %>%
+      na.omit()
+    
+    dfa_obj <- dfa(
+      time.series = x,
+      window.size.range = c(4, floor(length(x) / 4)),
+      npoints = 15,
+      do.plot = FALSE
+    )
+    
+    fit <- lm(log(dfa_obj$fluctuation.function) ~ log(dfa_obj$window.sizes))
+    
+    tibble(
+      dfa_alpha = as.numeric(coef(fit)[2]),
+      r_squared = summary(fit)$r.squared,
+      n = length(x)
+    )
+  }) %>%
+  ungroup()
+
+dfa_results
+```
 
 
 
