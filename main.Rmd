@@ -206,14 +206,65 @@ dfa_results <- df_long %>%
 dfa_results
 ```
 
+```{r surrogate DFA analysis}
+compute_dfa_alpha <- function(x) {
+  x <- na.omit(x)
+  
+  if (length(x) < 20) return(NA_real_)
+  
+  dfa_obj <- dfa(
+    time.series = x,
+    window.size.range = c(4, floor(length(x) / 4)),
+    npoints = 15,
+    do.plot = FALSE
+  )
+  
+  fit <- lm(log(dfa_obj$fluctuation.function) ~ log(dfa_obj$window.sizes))
+  as.numeric(coef(fit)[2])
+}
 
+set.seed(123)
+n_surrogates <- 200
 
+surrogate_dfa <- df_long %>%
+  group_by(participant) %>%
+  group_modify(~{
+    x <- .x %>%
+      arrange(Semaine) %>%
+      pull(K) %>%
+      na.omit()
+    
+    obs_alpha <- compute_dfa_alpha(x)
+    
+    null_alpha <- replicate(n_surrogates, {
+      x_surr <- sample(x)
+      compute_dfa_alpha(x_surr)
+    })
+    
+    tibble(
+      obs_alpha = obs_alpha,
+      null_mean = mean(null_alpha, na.rm = TRUE),
+      lower_2.5 = quantile(null_alpha, 0.025, na.rm = TRUE),
+      upper_97.5 = quantile(null_alpha, 0.975, na.rm = TRUE),
+      p_upper = mean(null_alpha >= obs_alpha, na.rm = TRUE)
+    )
+  }) %>%
+  ungroup()
 
+surrogate_dfa
 
-
-
-
-
-
-
-
+ggplot(surrogate_dfa, aes(x = participant, y = obs_alpha)) +
+  geom_hline(yintercept = 0.5, linetype = "dashed", color = "grey60") +
+  geom_errorbar(
+    aes(ymin = lower_2.5, ymax = upper_97.5),
+    width = 0.15,
+    size = 0.8
+  ) +
+  geom_point(size = 3) +
+  labs(
+    title = "Observed DFA alpha vs surrogate 95% interval",
+    x = "Participant",
+    y = "DFA alpha"
+  ) +
+  theme_minimal(base_size = 14)
+```
