@@ -358,6 +358,7 @@ ggplot(surrogate_dfa, aes(x = participant, y = obs_alpha)) +
 # 5. Discussion
 
 The present analysis provides converging evidence that weekly K dynamics are not purely random and that the degree of temporal structure varies meaningfully across participants. The surrogate-based lag-1 analysis identified three participants (K2A, K5A, K6A) with short-term persistence exceeding chance, while the DFA analysis independently flagged K1A, K2A, and K5A as showing scaling structure beyond white noise. The convergence across these two methods — and in particular the near-pink-noise alpha for K2A — suggests that motivational dynamics may, in at least some individuals, exhibit the kind of 1/f temporal organisation that has been associated with self-organised criticality and adaptive flexibility in psychological systems.
+
 These findings should nonetheless be interpreted carefully. With only six participants and series of 52–111 observations, the DFA estimates are based on limited window ranges, and the power to detect reliable scaling behaviour is modest. The results are therefore best understood as exploratory: they are consistent with a pink-noise interpretation for some participants, but do not constitute definitive evidence. Future work with longer time series and larger samples would be needed to test whether 1/f structure in motivational dynamics is robust and replicable.
 
 
