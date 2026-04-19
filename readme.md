@@ -1,20 +1,41 @@
-# A minimal template for data analysis with python 
+GitHub repository: [cbt_data_analysis](https://github.com/JINWEIZHANGG/cbt_data_analysis)
 
-This is a minimal template for data analysis with python, intended to researchers in human movement sciences that are new to python.   
-Cloning this template for each new data analysis problem should facilitate data analyses with python and minimize potential errors.   
+# Temporal structure in weekly K time series
 
-## Usage
-1. Download as a zip file (green button `< > Code` on the top right of the page)
-1. Expand the archive on your computer (e.g., in your `Download` folder). 
-1. Rename the extracted folder with the name of your new project (e.g., `ECG_analysis`)
-1. Move the new `ECG_analysis` folder where it should be located (e.g., in your `Documents/CodeProjects/` directory)
-1. In VSCode :
-    1. open the new project in a new window. 
-    1. open `main.ipynb` and click `Run all`
+## Project overview
 
-## Requirements
-- [A minimal Python environment for reproducible research in human movement sciences](https://github.com/DenisMot/Python-minimal-install) is my preferred solution.
-- Any IDE supporting python and jupyter notebooks is an alternative solution. 
+This project analyses weekly K time series from six participants in order to examine whether the observed dynamics are more structured than expected by chance.
 
-read me
-test
+The main question is whether participant-level K series show non-random temporal persistence across weeks. To address this question, the project combines visualisation, lag-1 autocorrelation, shuffled surrogate testing, and detrended fluctuation analysis (DFA).
+
+The report was developed for the course **Python-R-Git** in the Master program at the Université de Montpellier.
+
+## Main analyses
+
+The project includes:
+
+- visual inspection of weekly K trajectories
+- lag-1 autocorrelation by participant
+- shuffled surrogate comparison for lag-1 autocorrelation
+- exploratory autocorrelation across multiple lags
+- DFA and surrogate comparison for temporal scaling structure
+
+## Repository structure
+
+```text
+.
+├── readme.md
+├── LICENCE
+├── zhang.jinwei.html
+├── main.Rmd
+├── main.ipynb
+├── main.Rproj
+├── data/
+│   └── cbtdata.xlsx
+├── results/
+│   ├── k_trajectories.png
+│   ├── lag1_surrogate_plot.png
+│   ├── lag1_surrogate_table.csv
+│   ├── dfa_surrogate_plot.png
+│   └── dfa_surrogate_table.csv
+└── sources/
