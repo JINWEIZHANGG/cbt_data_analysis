@@ -1,4 +1,5 @@
-GitHub repository: https://github.com/JINWEIZHANGG/cbt_data_analysis.git
+GitHub repository: [cbt_data_analysis](https://github.com/JINWEIZHANGG/cbt_data_analysis)
+
 # Temporal structure in weekly K time series
 
 ## Project overview
@@ -27,11 +28,12 @@ The project includes:
 ├── LICENCE
 ├── zhang.jinwei.html
 ├── main.Rmd
+├── main.ipynb
 ├── main.Rproj
 ├── data/
 │   └── cbtdata.xlsx
 ├── results/
-│   ├── k_time_series_by_participant.png
+│   ├── k_trajectories.png
 │   ├── lag1_surrogate_plot.png
 │   ├── lag1_surrogate_table.csv
 │   ├── dfa_surrogate_plot.png
