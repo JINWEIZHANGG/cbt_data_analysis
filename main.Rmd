@@ -1,9 +1,37 @@
 ---
-title: "cbt_data_analysis"
+title: "Temporal structure in weekly K time series"
 author: "Jinwei Zhang"
 date: "`r Sys.Date()`"
-output: html_document
+output:
+  html_document:
+    code_folding: hide
 ---
+```{r}
+#Master 1 DIGIMOVE  
+#Course: Python-R-Git: Guidelines for the project and the defense  
+#GitHub repository: [insert your GitHub link here](https://github.com/yourname/yourrepo)
+```
+
+# 1. Introduction
+
+This project examines whether weekly K time series display non-random temporal dynamics across participants. More specifically, the analysis focuses on short-term temporal persistence, assessed through lag-1 autocorrelation and compared with shuffled surrogate series. The aim is to determine whether the observed week-to-week fluctuations in K are stronger than would be expected by chance.
+
+# 2. Data
+
+The dataset contains weekly measurements of K for several participants. In this report, the analysis focuses on six participant-specific K variables (K1A to K6A) together with the week index (Semaine). To facilitate time-series analysis, the data are transformed from wide to long format so that each row corresponds to one participant at one measurement week.
+
+```{r setup, include=FALSE}
+# Load packages and data
+knitr::opts_chunk$set(
+  echo = TRUE,
+  warning = FALSE,
+  message = FALSE
+)
+
+library(readxl)
+library(tidyverse)
+library(nonlinearTseries)
+```
 
 ```{r load xlsx data}
 library(readxl)
@@ -13,14 +41,19 @@ names(df)
 #str(df)
 ```
 
+
 ```{r remove the unrelated columns, keep k only}
+# Select needed variable 
 library(tidyverse)
 df_k <- df %>% 
   select(Semaine, K1A, K2A, K3A, K4A, K5A, K6A)
 head(df_k)
 ```
 
+
 ```{r reshape to long format}
+# Convert the dataset from wide format to long format so that each row
+# corresponds to one participant at one weekly measurement
 df_long <- df_k %>%
   pivot_longer(
     cols = -Semaine,
@@ -32,19 +65,25 @@ head(df_long)
 str(df_long)
 ```
 
+
 ```{r check for missing values, if any, remove them}
+# Check whether missing K values are present
 sum(is.na(df_long$K))
 colSums(is.na(df_k))
+# Remove missing K values if needed
 df_long <- df_long %>%
   drop_na(K)
-
+# Recheck after cleaning
 sum(is.na(df_long$K))
 head(df_long)
+# Count valid observations for each participant
 df_long %>%
   count(participant)
 ```
 
+The first step is to visually inspect the weekly evolution of K for each participant. The figure below provides an overview of participant-level trajectories and highlights possible differences in temporal variability.
 ```{r plot K time series for each participant}
+# Plot participant-level weekly K trajectories to inspect temporal patterns
 p1 <- ggplot(df_long, aes(x = Semaine, y = K)) +
   geom_line() +
   geom_point(size = 1) +
@@ -60,7 +99,18 @@ p1 <- ggplot(df_long, aes(x = Semaine, y = K)) +
 p1
 ```
 
+# 3. Methods
+
+The analysis begins with a visual inspection of weekly K trajectories for each participant. The main statistical analysis then evaluates lag-1 autocorrelation, which quantifies the association between a participant’s K value at a given week and the value observed in the previous week.
+
+To test whether this week-to-week persistence is stronger than expected by chance, a surrogate analysis is performed. For each participant, K values are randomly shuffled many times to generate a null distribution of lag-1 correlations. The observed lag-1 correlation is then compared with this surrogate distribution.
+
+Additional exploratory analyses are also included, such as autocorrelation across multiple lags and detrended fluctuation analysis (DFA), in order to examine broader temporal structure in the K time series.
+
+
 ```{r create lagged K and check for consecutive weeks}
+# Create lagged K values within each participant and keep only consecutive weeks
+# This ensures that lag-1 correlation is computed from valid week-to-week pairs
 df_lag <- df_long %>%
   group_by(participant) %>%
   arrange(Semaine, .by_group = TRUE) %>%
@@ -90,7 +140,10 @@ acf_results
 
 ```
 
+The table below summarises the main lag-1 surrogate analysis for each participant. It reports the observed lag-1 autocorrelation, the surrogate-based reference interval, and the associated p-value.
 ```{r surrogate analysis}
+# Compare observed lag-1 correlation with a null distribution obtained by randomly shuffling K values within each participant.
+# If observed correlation is outside the surrogate interval, this suggests non-random temporal structure.
 set.seed(123)
 
 n_surrogates <- 1000
@@ -117,9 +170,14 @@ surrogate_results <- df_lag_valid %>%
   ungroup()
 
 surrogate_results
+#save the table
+write_csv(surrogate_results, "results/lag1_surrogate_table.csv")
 ```
 
+To make the surrogate comparison easier to interpret visually, the figure below shows each observed lag-1 correlation together with its participant-specific surrogate 95% interval (2.5th–97.5th percentile of the shuffled surrogate distribution).
 ```{r plot surrogate results}
+# Visualize whether the observed lag-1 correlation exceeds the
+# participant-specific surrogate 95% interval
 library(ggplot2)
 
 p_surrogate <- ggplot(surrogate_results, aes(x = participant, y = observed_acf)) +
@@ -127,7 +185,7 @@ p_surrogate <- ggplot(surrogate_results, aes(x = participant, y = observed_acf))
   geom_errorbar(
     aes(ymin = lower_2.5, ymax = upper_97.5),
     width = 0.15,
-    size = 0.8
+    linewidth = 0.8
   ) +
   geom_point(size = 3) +
   labs(
@@ -141,7 +199,20 @@ p_surrogate
 
 ```
 
+# 4. Results
+
+The participant-level time-series plots show that K varies over time and that the temporal profiles differ across individuals. The lag-1 autocorrelation analysis also suggests marked inter-individual differences in short-term persistence.
+
+The surrogate comparison provides the main inferential result of this report. Three participants (K2A, K5A, and K6A) showed observed lag-1 correlations clearly above the upper bound of the surrogate 95% interval, suggesting stronger-than-random week-to-week persistence. In contrast, K1A, K3A, and K4A remained within the surrogate interval, indicating weaker evidence for non-random short-term temporal structure.
+
+Beyond the lag-1 surrogate analysis, the DFA alpha values provide convergent evidence for temporal structure in several participants. Three participants showed DFA alpha values significantly above the white-noise baseline (α = 0.5): K1A (α = 0.922, p = 0.01), K2A (α = 1.03, p = 0.00), and K5A (α = 0.784, p = 0.01). Notably, K2A's alpha value of 1.03 falls close to the theoretical pink noise reference (α = 1.0), suggesting that its K dynamics may exhibit 1/f scaling structure. This convergence is further supported by the consistency between the lag-1 and DFA results: the two participants with the highest lag-1 autocorrelations (K2A = 0.597, K6A = 0.613) also showed the two highest DFA alpha values (1.03 and 0.734, respectively), suggesting that both short-term persistence and longer-range scaling structure may co-occur in some individuals.
+
+
+
+Beyond the main lag-1 analysis, autocorrelation across multiple lags was examined as an exploratory extension. This allows a broader description of how temporal dependence changes across increasing lag values.
 ```{r compute and plot ACF for multiple lags}
+# This exploratory section extends the analysis beyond lag-1 and shows
+# how autocorrelation changes across several time lags.
 max_lag <- 10
 
 acf_multi <- df_long %>%
@@ -173,7 +244,10 @@ ggplot(acf_multi, aes(x = lag, y = acf)) +
   theme_minimal(base_size = 14)
 ```
 
+As a complementary analysis, DFA was used to examine whether the weekly K series also showed broader temporal structure beyond immediate lag-1 persistence.
 ```{r DFA analysis}
+# DFA is included here as an exploratory complexity-oriented analysis.
+# It estimates scaling behaviour in each participant's K time series.
 library(nonlinearTseries)
 library(tibble)
 library(dplyr)
@@ -206,7 +280,9 @@ dfa_results <- df_long %>%
 dfa_results
 ```
 
+The observed DFA alpha values were then compared with shuffled surrogate series in order to assess whether the apparent scaling behaviour was stronger than expected by chance.
 ```{r surrogate DFA analysis}
+# Compare observed DFA alpha with shuffled surrogates to assess whether the apparent scaling structure is stronger than expected by chance.
 compute_dfa_alpha <- function(x) {
   x <- na.omit(x)
   
@@ -254,7 +330,16 @@ surrogate_dfa <- df_long %>%
 surrogate_dfa
 
 ggplot(surrogate_dfa, aes(x = participant, y = obs_alpha)) +
-  geom_hline(yintercept = 0.5, linetype = "dashed", color = "grey60") +
+  geom_hline(yintercept = 0.5, linetype = "dotted", color = "grey60") +
+  geom_hline(yintercept = 1.0, linetype = "dashed", color = "steelblue") +
+  geom_hline(yintercept = 1.5, linetype = "dashed", color = "coral") +
+
+  annotate("text", x = "K1A", y = 0.52, label = "White noise (\u03b1=0.5)",
+           hjust = 0, size = 3, color = "grey40") +
+  annotate("text", x = "K1A", y = 1.02, label = "Pink noise (\u03b1=1.0)",
+           hjust = 0, size = 3, color = "steelblue") +
+  annotate("text", x = "K1A", y = 1.52, label = "Brown noise (\u03b1=1.5)",
+           hjust = 0, size = 3, color = "coral") +
   geom_errorbar(
     aes(ymin = lower_2.5, ymax = upper_97.5),
     width = 0.15,
@@ -262,9 +347,19 @@ ggplot(surrogate_dfa, aes(x = participant, y = obs_alpha)) +
   ) +
   geom_point(size = 3) +
   labs(
-    title = "Observed DFA alpha vs surrogate 95% interval",
+    title = "Observed DFA alpha with surrogate 95% intervals",
     x = "Participant",
     y = "DFA alpha"
   ) +
   theme_minimal(base_size = 14)
 ```
+# 5. Discussion
+
+The present analysis provides converging evidence that weekly K dynamics are not purely random and that the degree of temporal structure varies meaningfully across participants. The surrogate-based lag-1 analysis identified three participants (K2A, K5A, K6A) with short-term persistence exceeding chance, while the DFA analysis independently flagged K1A, K2A, and K5A as showing scaling structure beyond white noise. The convergence across these two methods — and in particular the near-pink-noise alpha for K2A — suggests that motivational dynamics may, in at least some individuals, exhibit the kind of 1/f temporal organisation that has been associated with self-organised criticality and adaptive flexibility in psychological systems.
+These findings should nonetheless be interpreted carefully. With only six participants and series of 52–111 observations, the DFA estimates are based on limited window ranges, and the power to detect reliable scaling behaviour is modest. The results are therefore best understood as exploratory: they are consistent with a pink-noise interpretation for some participants, but do not constitute definitive evidence. Future work with longer time series and larger samples would be needed to test whether 1/f structure in motivational dynamics is robust and replicable.
+
+
+
+# 6. Conclusion
+
+This report shows that weekly K time series can be analysed with relatively simple time-series tools in R, combining visualization, lag-1 autocorrelation, surrogate testing, and DFA. The main result is that some participant-level K series appear more temporally structured than would be expected by chance, supporting the idea that motivational dynamics may contain non-random short-term persistence. Complementary DFA results further suggest that, for some participants, this temporal structure may extend beyond immediate lag-1 dependence and may be compatible with intermediate dynamics between white noise and pink noise. Given the small number of participants and the limited series length, these DFA findings should be interpreted as exploratory rather than definitive.
