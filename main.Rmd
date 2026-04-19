@@ -141,6 +141,37 @@ p_surrogate
 
 ```
 
+```{r compute and plot ACF for multiple lags}
+max_lag <- 10
+
+acf_multi <- df_long %>%
+  group_by(participant) %>%
+  group_modify(~{
+    x <- .x %>%
+      arrange(Semaine) %>%
+      pull(K) %>%
+      na.omit()
+    
+    acf_obj <- acf(x, lag.max = max_lag, plot = FALSE)
+    
+    tibble(
+      lag = as.numeric(acf_obj$lag[-1]),
+      acf = as.numeric(acf_obj$acf[-1])
+    )
+  }) %>%
+  ungroup()
+
+ggplot(acf_multi, aes(x = lag, y = acf)) +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "grey50") +
+  geom_col() +
+  facet_wrap(~ participant, ncol = 2) +
+  labs(
+    title = "Autocorrelation across multiple lags",
+    x = "Lag",
+    y = "ACF"
+  ) +
+  theme_minimal(base_size = 14)
+```
 
 
 
